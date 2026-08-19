@@ -1,13 +1,156 @@
 {
-    "atomType": "Molecule",
-    "x": 0,
-    "y": 0,
-    "uniqueID": "id-54",
-    "name": "select.FacesByNormal",
-    "topLevel": true,
-    "allAtoms": [],
-    "allConnectors": [],
-    "unitsKey": "Unitless",
-    "fileTypeVersion": 1,
-    "filetypeVersion": 1
+  "atomType": "Molecule",
+  "x": 0,
+  "y": 0,
+  "uniqueID": "id-54",
+  "name": "select.FacesByNormal",
+  "ioValues": [
+    {
+      "name": "shape",
+      "ioValue": "__GEOMETRY_INPUT__"
+    },
+    {
+      "name": "normal",
+      "ioValue": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "toleranceDeg",
+      "ioValue": 0
+    },
+    {
+      "name": "u",
+      "ioValue": 0.5
+    },
+    {
+      "name": "v",
+      "ioValue": 0.5
+    }
+  ],
+  "topLevel": true,
+  "allAtoms": [
+    {
+      "atomType": "Output",
+      "x": 0.98,
+      "y": 0.5,
+      "uniqueID": "id-55",
+      "ioValues": [
+        {
+          "name": "number or geometry",
+          "ioValue": "__GEOMETRY_INPUT__"
+        }
+      ]
+    },
+    {
+      "atomType": "Code",
+      "x": 0.46223958333333337,
+      "y": 0.3485714285714286,
+      "uniqueID": "id-57",
+      "ioValues": [
+        {
+          "name": "facesOf",
+          "ioValue": "__GEOMETRY_INPUT__"
+        },
+        {
+          "name": "normal",
+          "ioValue": [
+            1,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "toleranceDeg",
+          "ioValue": 0
+        },
+        {
+          "name": "u",
+          "ioValue": 0.5
+        },
+        {
+          "name": "v",
+          "ioValue": 0.5
+        }
+      ],
+      "interpreterVersion": 1,
+      "code": "\nfunction run(facesOf: Assembly, normal: number[], toleranceDeg: number = 0, u: number = 0.5, v: number = 0.5) {\n  if (normal.length != 3) {\n    throw new Error(\"normal must be a vector of three numbers\")\n  }\n  const normVec = new replicad.Vector(normal as [number, number, number]).normalized()\n  const tol = toleranceDeg * replicad.DEG2RAD\n  return facesOf.onLeafs((leaf) => {\n    if (leaf.geometry instanceof replicad.Drawing) {\n      throw new Error(\"Drawings have no Faces. Input must be 3d\")\n    }\n    // identify new indexes to mark as selected\n    const selectedIndexes = []\n    const finder = new replicad.FaceFinder().when((arg) => {\n      const faceNorm = arg.normal ? arg.normal : arg.element.normalAt([u,v])\n      const degBetween = Math.acos(faceNorm.normalized().dot(normVec))\n      console.log(`face normal: ${faceNorm}, degBetween: ${degBetween}`)\n      return degBetween <= tol;\n    })\n    const foundFaces = finder.find(leaf.geometry)\n    const allFaces = leaf.geometry.faces;\n    const indexes = foundFaces.map((f) => allFaces.findIndex((face) => face.isSame(f)));\n    selectedIndexes.push(...indexes)\n\n    if (leaf.selection == undefined) {\n      leaf.selection = { faces: [] }\n    }\n    const before = leaf.selection.faces as number[];\n    leaf.selection.faces = [... new Set([...before, ...selectedIndexes])]\n    console.log(`updated selection list ${before} to ${leaf.selection.faces}`)\n    return leaf;\n  })\n}",
+      "compiledCode": "\"use strict\";\nfunction run(facesOf, normal, toleranceDeg = 0, u = 0.5, v = 0.5) {\n    if (normal.length != 3) {\n        throw new Error(\"normal must be a vector of three numbers\");\n    }\n    const normVec = new replicad.Vector(normal).normalized();\n    const tol = toleranceDeg * replicad.DEG2RAD;\n    return facesOf.onLeafs((leaf) => {\n        if (leaf.geometry instanceof replicad.Drawing) {\n            throw new Error(\"Drawings have no Faces. Input must be 3d\");\n        }\n        // identify new indexes to mark as selected\n        const selectedIndexes = [];\n        const finder = new replicad.FaceFinder().when((arg) => {\n            const faceNorm = arg.normal ? arg.normal : arg.element.normalAt([u, v]);\n            const degBetween = Math.acos(faceNorm.normalized().dot(normVec));\n            console.log(`face normal: ${faceNorm}, degBetween: ${degBetween}`);\n            return degBetween <= tol;\n        });\n        const foundFaces = finder.find(leaf.geometry);\n        const allFaces = leaf.geometry.faces;\n        const indexes = foundFaces.map((f) => allFaces.findIndex((face) => face.isSame(f)));\n        selectedIndexes.push(...indexes);\n        if (leaf.selection == undefined) {\n            leaf.selection = { faces: [] };\n        }\n        const before = leaf.selection.faces;\n        leaf.selection.faces = [...new Set([...before, ...selectedIndexes])];\n        console.log(`updated selection list ${before} to ${leaf.selection.faces}`);\n        return leaf;\n    });\n}\n"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.0231,
+      "y": 0.2714285714285714,
+      "uniqueID": "id-71",
+      "name": "shape",
+      "type": "geometry"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.0231,
+      "y": 0.3554285714285714,
+      "uniqueID": "id-74",
+      "name": "normal",
+      "type": "point3d",
+      "pointValue": null
+    },
+    {
+      "atomType": "Input",
+      "x": 0.0231,
+      "y": 0.43942857142857145,
+      "uniqueID": "id-77",
+      "name": "toleranceDeg"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.0231,
+      "y": 0.5234285714285715,
+      "uniqueID": "id-80",
+      "name": "u"
+    },
+    {
+      "atomType": "Input",
+      "x": 0.0231,
+      "y": 0.6074285714285714,
+      "uniqueID": "id-83",
+      "name": "v"
+    }
+  ],
+  "allConnectors": [
+    {
+      "ap2Name": "number or geometry",
+      "ap1ID": "id-57",
+      "ap2ID": "id-55"
+    },
+    {
+      "ap2Name": "facesOf",
+      "ap1ID": "id-71",
+      "ap2ID": "id-57"
+    },
+    {
+      "ap2Name": "normal",
+      "ap1ID": "id-74",
+      "ap2ID": "id-57"
+    },
+    {
+      "ap2Name": "toleranceDeg",
+      "ap1ID": "id-77",
+      "ap2ID": "id-57"
+    },
+    {
+      "ap2Name": "u",
+      "ap1ID": "id-80",
+      "ap2ID": "id-57"
+    },
+    {
+      "ap2Name": "v",
+      "ap1ID": "id-83",
+      "ap2ID": "id-57"
+    }
+  ],
+  "unitsKey": "Unitless",
+  "fileTypeVersion": 1,
+  "filetypeVersion": 1
 }
